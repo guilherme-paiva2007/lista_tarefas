@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
 import 'package:lista_tarefas/widgets/big_button.dart';
+import 'package:lista_tarefas/widgets/date_input.dart';
 import 'package:lista_tarefas/widgets/input.dart';
 
 class Register extends StatefulWidget {
@@ -15,16 +16,21 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> with TickerProviderStateMixin, WidgetsBindingObserver {
   final TextEditingController nameController = TextEditingController();
   final FocusNode nameFocusNode = FocusNode();
-  late final InputValidatorController nameValidator;
+  late final TextInputValidatorController nameValidator;
   bool nameFirstTyped = false;
   final TextEditingController emailController = TextEditingController();
   final FocusNode emailFocusNode = FocusNode();
-  late final InputValidatorController emailValidator;
+  late final TextInputValidatorController emailValidator;
   bool emailFirstTyped = false;
   final TextEditingController passwordController = TextEditingController();
   final FocusNode passwordFocusNode = FocusNode();
-  late final InputValidatorController passwordValidator;
+  late final TextInputValidatorController passwordValidator;
+  final SecretInputController passwordSecret = SecretInputController();
   bool passwordFirstTyped = false;
+  final DateInputController birthDateController = DateInputController();
+  final FocusNode birthDateFocusNode = FocusNode();
+  late final DateInputValidatorController birthDateValidator;
+  bool birthDateFirstTyped = false;
 
   late AnimationController _animationController;
   late Animation<double> _sizeAnimation;
@@ -32,13 +38,27 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
   double _lastBottomInset = 0;
   _KeyboardState _keyboardState = _KeyboardState.closed;
 
+  final ValueNotifier<bool> _formValidNotifier = ValueNotifier<bool>(false);
+
+  void _checkFormValidity() {
+    WidgetsBinding.instance.addPostFrameCallback((context) {
+      final isValid =
+        emailValidator.valid
+        && passwordValidator.valid
+        && nameValidator.valid
+        && birthDateValidator.valid;
+      print(isValid);
+      _formValidNotifier.value = isValid;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     
     final RegExp nameRegExp = RegExp(r"^[a-zA-ZÀ-ÿ\s]+$");
-    nameValidator = InputValidatorController((value) {
+    nameValidator = TextInputValidatorController((value) {
       if ((value ?? "").isEmpty) return "O nome não pode estar vazio";
       if (!nameRegExp.hasMatch(value ?? "")) return "O nome só pode conter letras e espaços.";
       return null;
@@ -47,18 +67,24 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
     RegExp emailRegExp = RegExp(
       r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
     );
-    emailValidator = InputValidatorController((value) {
+    emailValidator = TextInputValidatorController((value) {
       if ((value ?? "").isEmpty) return "E-mail não pode estar vazio.";
       if (!emailRegExp.hasMatch(value ?? "")) return "Estrutura de e-mail inválida.";
       return null;
     }, emailController);
 
-    passwordValidator = InputValidatorController((value) {
+    passwordValidator = TextInputValidatorController((value) {
       value ??= "";
       if (value.isEmpty) return "A senha não pode estar vazia.";
       if (value.length < 8 || value.length > 64) return "A senha precisa ter entre 8 e 64 caracteres.";
       return null;
     }, passwordController);
+
+    birthDateValidator = DateInputValidatorController((date) {
+      print(date);
+      if (date == null) return "A data não pode estar vazia.";
+      return null;
+    }, birthDateController);
 
     _animationController = AnimationController(
       duration: Duration(milliseconds: 350),
@@ -69,6 +95,11 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
       begin: 64.0,
       end: 0.0
     ).animate(_animationController);
+
+    emailController.addListener(_checkFormValidity);
+    passwordController.addListener(_checkFormValidity);
+    nameController.addListener(_checkFormValidity);
+    birthDateController.addListener(_checkFormValidity);
   }
 
   @override
@@ -108,7 +139,10 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppPrimaryColors.white,
       appBar: AppBar(
+        backgroundColor: AppPrimaryColors.white,
+        surfaceTintColor: AppPrimaryColors.white,
         leading: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();
@@ -166,101 +200,62 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
                 ),
               ),
             ),
-            AnimatedBuilder(
-              animation: _sizeAnimation,
-              builder: (context, _) {
-                return Expanded(
-                  flex: (8 - _animationController.value * 8).round(),
-                  child: SizedBox(
-                    height: _animationController.value,
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(46.0),
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppPrimaryColors.darkGrey
-                            ),
-                            height: _sizeAnimation.value,
-                            width: _sizeAnimation.value,
-                            constraints: BoxConstraints(
-                              maxHeight: _sizeAnimation.value
-                            ),
-                            child: Center(
-                              child: FaIcon(FontAwesomeIcons.images, size: 48 * (1 - _animationController.value), color: AppPrimaryColors.lightGrey,)
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                );
-              }
+            Expanded(
+              flex: 1,
+              child: Center(),
             ),
             Expanded(
               flex: 8,
               child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.9,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 24
-                    - (nameValidator.valid || !nameFirstTyped ? 0 : 6)
-                    - (emailValidator.valid || !emailFirstTyped ? 0 : 6)
-                    - (passwordValidator.valid || !passwordFirstTyped ? 0 : 6),
-                  children: [
-                    AppInput(
-                      controller: nameController,
-                      focusNode: nameFocusNode,
-                      validator: nameValidator,
-                      label: "Nome",
-                      maxLines: 1,
-                      suffixIcon: FontAwesomeIcons.signature,
-                      onChanged: (value, state) => WidgetsBinding.instance.addPostFrameCallback((_) {
-                        nameFirstTyped = true;
-                        setState(() {});
-                      }),
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      spacing: 24,
+                      children: [
+                        AppTextInput(
+                          controller: nameController,
+                          focusNode: nameFocusNode,
+                          validator: nameValidator,
+                          label: "Nome",
+                          maxLines: 1,
+                          suffixIcon: FontAwesomeIcons.signature,
+                        ),
+                        AppTextInput(
+                          controller: emailController,
+                          focusNode: emailFocusNode,
+                          validator: emailValidator,
+                          label: "E-mail",
+                          maxLines: 1,
+                          suffixIcon: FontAwesomeIcons.envelope,
+                        ),
+                        AppTextInput(
+                          controller: passwordController,
+                          focusNode: passwordFocusNode,
+                          validator: passwordValidator,
+                          label: "Senha",
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          obscureText: passwordSecret.obscure,
+                          suffixIcon: passwordSecret.icon,
+                          maxLines: 1,
+                          onTapSuffixIcon: () {
+                            setState(() {
+                              passwordSecret.toggle();
+                            });
+                          },
+                        ),
+                        AppDateInput(
+                          controller: birthDateController,
+                          focusNode: birthDateFocusNode,
+                          validator: birthDateValidator,
+                          label: "Data de nascimento",
+                        ),
+                      ],
                     ),
-                    AppInput(
-                      controller: emailController,
-                      focusNode: emailFocusNode,
-                      validator: emailValidator,
-                      label: "E-mail",
-                      maxLines: 1,
-                      suffixIcon: FontAwesomeIcons.envelope,
-                      onChanged: (value, state) => WidgetsBinding.instance.addPostFrameCallback((_) {
-                        emailFirstTyped = true;
-                        setState(() {});
-                      }),
-                    ),
-                    AppInput(
-                      controller: passwordController,
-                      focusNode: passwordFocusNode,
-                      validator: passwordValidator,
-                      label: "Senha",
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      obscureText: true,
-                      suffixIcon: FontAwesomeIcons.eyeSlash,
-                      maxLines: 1,
-                      onChanged: (value, state) => WidgetsBinding.instance.addPostFrameCallback((_) {
-                        passwordFirstTyped = true;
-                        setState(() {});
-                      }),
-                      onTapSuffixIcon: (state) {
-                        state.setState(() {
-                          if (state.obscureText) {
-                            state.suffixIcon = FontAwesomeIcons.eye;
-                            state.obscureText = false;
-                          } else {
-                            state.suffixIcon = FontAwesomeIcons.eyeSlash;
-                            state.obscureText = true;
-                          }
-                        });
-                      },
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -268,23 +263,26 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
               animation: _sizeAnimation,
               builder: (context, _) {
                 return Expanded(
-                  flex: (5 - _animationController.value * 3).ceil(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        child: AppBigButton(
-                          onPressed: () {},
-                          text: "Cadastrar-se",
-                          color: (
-                            emailValidator.valid &&
-                            passwordValidator.valid &&
-                            nameValidator.valid
-                          ) ? AppPrimaryColors.indigo : AppPrimaryColors.darkGrey,
-                        ),
-                      ),
-                    ],
+                  flex: (5 - _animationController.value * 2).ceil(),
+                  child: ValueListenableBuilder(
+                    valueListenable: _formValidNotifier,
+                    builder: (context, isValidForm, child) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            child: AppBigButton(
+                              onPressed: () {
+                                print(birthDateValidator.valid);
+                              },
+                              text: "Cadastrar-se",
+                              color: isValidForm ? AppPrimaryColors.indigo : AppPrimaryColors.darkGrey,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
                   ),
                 );
               }

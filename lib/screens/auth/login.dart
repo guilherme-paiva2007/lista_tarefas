@@ -18,16 +18,26 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBindingObserver {
   final TextEditingController emailController = TextEditingController(text: "");
   final FocusNode emailFocusNode = FocusNode();
-  late final InputValidatorController emailValidator;
+  late final TextInputValidatorController emailValidator;
   final TextEditingController passwordController = TextEditingController(text: "");
   final FocusNode passwordFocusNode = FocusNode();
-  late final InputValidatorController passwordValidator;
+  late final TextInputValidatorController passwordValidator;
+  final SecretInputController passwordSecret = SecretInputController();
 
   late AnimationController _animationController;
   late Animation<double> _flexAnimation;
 
   double _lastBottomInset = 0;
   _KeyboardState _keyboardState = _KeyboardState.closed;
+  
+  final ValueNotifier<bool> _formValidNotifier = ValueNotifier<bool>(false);
+
+  void _checkFormValidity() {
+    WidgetsBinding.instance.addPostFrameCallback((context) {
+      final isValid = emailValidator.valid && passwordValidator.valid;
+      _formValidNotifier.value = isValid;
+    });
+  }
 
   @override
   void initState() {
@@ -37,13 +47,13 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
     RegExp emailRegexp = RegExp(
       r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
     );
-    emailValidator = InputValidatorController((value) {
+    emailValidator = TextInputValidatorController((value) {
       if ((value ?? "").isEmpty) return "E-mail não pode estar vazio.";
       if (!emailRegexp.hasMatch(value ?? "")) return "Estrutura de e-mail inválida.";
       return null;
     }, emailController);
 
-    passwordValidator = InputValidatorController((value) {
+    passwordValidator = TextInputValidatorController((value) {
       if ((value ?? "").isEmpty) return "A senha não pode estar vazia.";
       return null;
     }, passwordController);
@@ -60,6 +70,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
+
+    emailController.addListener(_checkFormValidity);
+    passwordController.addListener(_checkFormValidity);
   }
 
   @override
@@ -97,6 +110,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppPrimaryColors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -155,41 +169,29 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 20,),
-                      AppInput(
+                      AppTextInput(
                         controller: emailController,
                         focusNode: emailFocusNode,
                         label: "Email",
                         suffixIcon: FontAwesomeIcons.envelope,
                         validator: emailValidator,
                         maxLines: 1,
-                        onChanged: (value, state) => WidgetsBinding.instance.addPostFrameCallback((_) {
-                          setState(() {});
-                        }),
                       ),
                       SizedBox(height: 20,),
-                      AppInput(
+                      AppTextInput(
                         controller: passwordController,
                         focusNode: passwordFocusNode,
                         label: "Senha",
-                        suffixIcon: FontAwesomeIcons.eyeSlash,
+                        suffixIcon: passwordSecret.icon,
                         validator: passwordValidator,
                         autocorrect: false,
                         enableSuggestions: false,
-                        obscureText: true,
-                        onTapSuffixIcon: (state) {
-                          state.setState(() {
-                            if (state.obscureText) {
-                              state.obscureText = false;
-                              state.suffixIcon = FontAwesomeIcons.eye;
-                            } else {
-                              state.obscureText = true;
-                              state.suffixIcon = FontAwesomeIcons.eyeSlash;
-                            }
+                        obscureText: passwordSecret.obscure,
+                        onTapSuffixIcon: () {
+                          setState(() {
+                            passwordSecret.toggle();
                           });
                         },
-                        onChanged: (value, state) => WidgetsBinding.instance.addPostFrameCallback((_) {
-                          setState(() {});
-                        }),
                         maxLines: 1,
                       ),
                       Padding(
@@ -219,23 +221,30 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.9,
-                    child: AppBigButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) {
-                            return Home();
-                          }
-                        ));
-                      },
-                      text: "Entrar",
-                      color: (emailValidator.valid && passwordValidator.valid) ? AppPrimaryColors.purple : AppPrimaryColors.grey,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _formValidNotifier,
+                      builder: (context, isFormValid, child) {
+                        return AppBigButton(
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                              builder: (context) {
+                                return Home();
+                              }
+                            ));
+                          },
+                          text: "Entrar",
+                          color: isFormValid ? AppPrimaryColors.blue : AppPrimaryColors.grey,
+                        );
+                      }
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => Register()));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                          return Register();
+                        }));
                       },
                       child: Text("Não tem uma conta?")
                     ),

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
 
-class AppInput extends StatefulWidget {
+class AppTextInput extends StatelessWidget {
   final bool autocorrect;
   final bool autofocus;
   final TextEditingController controller;
@@ -16,17 +16,17 @@ class AppInput extends StatefulWidget {
   final int? maxLines;
   final int? minLines;
   final bool obscureText;
-  final void Function(String value, AppInputState state)? onChanged;
-  final void Function(AppInputState state)? onTap;
-  final void Function(AppInputState state)? onTapPrefixIcon;
-  final void Function(AppInputState state)? onTapSuffixIcon;
+  final void Function(String value)? onChanged;
+  final void Function()? onTap;
+  final void Function()? onTapPrefixIcon;
+  final void Function()? onTapSuffixIcon;
   final String? label;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
 
-  final InputValidatorController? validator;
+  final TextInputValidatorController? validator;
   
-  const AppInput({
+  const AppTextInput({
     super.key,
     this.autocorrect = true,
     this.autofocus = false,
@@ -51,59 +51,8 @@ class AppInput extends StatefulWidget {
   });
 
   @override
-  State<AppInput> createState() => AppInputState();
-}
-
-class AppInputState extends State<AppInput> {
-  late bool autocorrect;
-  late bool autofocus;
-  late final TextEditingController controller;
-  late bool enabled;
-  late final FocusNode focusNode;
-  late List<TextInputFormatter> inputFormatters;
-  late TextInputType? keyboardType;
-  late bool enableSuggestions;
-  late int? maxLength;
-  late int? maxLines;
-  late int? minLines;
-  late bool obscureText;
-  late final void Function(String value, AppInputState state)? onChanged;
-  late final void Function(AppInputState state)? onTap;
-  late final void Function(AppInputState state)? onTapPrefixIcon;
-  late final void Function(AppInputState state)? onTapSuffixIcon;
-  late String? label;
-  late IconData? prefixIcon;
-  late IconData? suffixIcon;
-  late final InputValidatorController validator;
-
-  @override
-  void initState() {
-    super.initState();
-
-    autocorrect = widget.autocorrect;
-    autofocus = widget.autofocus;
-    controller = widget.controller;
-    enabled = widget.enabled;
-    focusNode = widget.focusNode;
-    inputFormatters = widget.inputFormatters;
-    keyboardType = widget.keyboardType;
-    enableSuggestions = widget.enableSuggestions;
-    maxLength = widget.maxLength;
-    maxLines = widget.maxLines;
-    minLines = widget.minLines;
-    obscureText = widget.obscureText;
-    onChanged = widget.onChanged;
-    onTapPrefixIcon = widget.onTapPrefixIcon;
-    onTapSuffixIcon = widget.onTapSuffixIcon;
-    onTap = widget.onTap;
-    label = widget.label;
-    prefixIcon = widget.prefixIcon;
-    suffixIcon = widget.suffixIcon;
-    validator = widget.validator ?? InputValidatorController((_) => null, controller);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final validator = this.validator ?? TextInputValidatorController((_) => null, controller);
     return Container(
       decoration: BoxDecoration(
         // color: AppPrimaryColors.lightGrey,
@@ -125,10 +74,9 @@ class AppInputState extends State<AppInput> {
           minLines: minLines,
           obscureText: obscureText,
           onChanged: (value) {
-            onChanged?.call(value, this);
-            setState(() {});
+            onChanged?.call(value);
           },
-          onTap: () => onTap?.call(this),
+          onTap: () => onTap?.call(),
           cursorColor: AppPrimaryColors.extraDarkGrey,
           validator: (value) {
             final error = validator._runValidator(value ?? "");
@@ -138,16 +86,16 @@ class AppInputState extends State<AppInput> {
           decoration: InputDecoration(
             label: label != null ? Text(label!, style: TextStyle(color: AppPrimaryColors.extraDarkGrey),) : null,
             prefixIcon: prefixIcon != null ? GestureDetector(
-              onTap: () => onTapPrefixIcon?.call(this),
+              onTap: () => onTapPrefixIcon?.call(),
               child: FaIcon(prefixIcon, size: 24, color: AppPrimaryColors.darkGrey,),
             ) : null,
             suffixIcon: suffixIcon != null ? GestureDetector(
-              onTap: () => onTapSuffixIcon?.call(this),
+              onTap: () => onTapSuffixIcon?.call(),
               child: FaIcon(suffixIcon, size: 24, color: AppPrimaryColors.darkGrey,),
             ) : null,
-            suffixIconConstraints: BoxConstraints(maxHeight: 24, minWidth: 40),
-            prefixIconConstraints: BoxConstraints(maxHeight: 24, minWidth: 40),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            suffixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
+            prefixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             filled: true,
             fillColor: AppPrimaryColors.lightGrey,
             hoverColor: Colors.transparent,
@@ -184,7 +132,7 @@ class AppInputState extends State<AppInput> {
   }
 }
 
-class InputValidatorController {
+class TextInputValidatorController {
   final String? Function(String? value) validator;
   final TextEditingController controller;
 
@@ -207,5 +155,25 @@ class InputValidatorController {
   bool get valid => _cacheValidator != null ? false : true;
   String? get error => _cacheValidator;
 
-  InputValidatorController(this.validator, this.controller);
+  TextInputValidatorController(this.validator, this.controller);
+}
+
+class SecretInputController {
+  bool _obscure;
+  IconData _icon;
+
+  bool get obscure => _obscure;
+  IconData get icon => _icon;
+
+  void toggle() {
+    _obscure = !_obscure;
+    _icon = _possibleValues[_obscure]!;
+  }
+
+  SecretInputController([bool initialValue = true]): _obscure = initialValue, _icon = _possibleValues[initialValue]!;
+
+  static final Map<bool, IconData> _possibleValues = {
+    true: FontAwesomeIcons.eyeSlash,
+    false: FontAwesomeIcons.eye,
+  };
 }
