@@ -129,6 +129,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
 
   @override
   Widget build(BuildContext context) {
+    setSystemStyle();
+
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(

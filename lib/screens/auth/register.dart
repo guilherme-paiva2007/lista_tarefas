@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
+import 'package:lista_tarefas/core/utils/set_system_style.dart';
 import 'package:lista_tarefas/widgets/big_button.dart';
 import 'package:lista_tarefas/widgets/date_input.dart';
 import 'package:lista_tarefas/widgets/text_input.dart';
@@ -136,6 +137,8 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
 
   @override
   Widget build(BuildContext context) {
+    setSystemStyle();
+
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(

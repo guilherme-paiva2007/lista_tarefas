@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
+import 'package:lista_tarefas/core/utils/set_system_style.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -11,6 +12,7 @@ class ForgotPassword extends StatefulWidget {
 class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   Widget build(BuildContext context) {
+    setSystemStyle();
     return Scaffold(
       body: Center(
         child: Column(

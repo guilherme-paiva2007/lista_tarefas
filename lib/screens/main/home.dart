@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
-import 'package:lista_tarefas/widgets/home/bottom_bar.dart';
+import 'package:lista_tarefas/core/utils/set_system_style.dart';
+import 'package:lista_tarefas/widgets/bottom_bar.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -13,6 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
+    setSystemStyle(true);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -40,15 +42,15 @@ class _HomeState extends State<Home> {
                 children: [
                   Container(
                     height: height * 0.4,
-                    color: Colors.red,
+                    color: AppColors.gold,
                   ),
                   Container(
                     height: height * 0.3,
-                    color: Colors.amber,
+                    color: AppColors.purple,
                   ),
                   Container(
                     height: height * 0.3,
-                    color: Colors.blue,
+                    color: AppColors.blue,
                   ),
                 ],
               ),
@@ -56,22 +58,6 @@ class _HomeState extends State<Home> {
           );
         }
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: [
-      //     BottomNavigationBarItem(
-      //       icon: FaIcon(FontAwesomeIcons.a),
-      //       label: "A"          
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: FaIcon(FontAwesomeIcons.b),
-      //       label: "B"
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: FaIcon(FontAwesomeIcons.c),
-      //       label: "C",
-      //     )
-      //   ]
-      // ),
       bottomNavigationBar: AppBottomBar(
         items: [
           AppBottomBarItem(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
-import 'package:lista_tarefas/core/constants/dimensions.dart';
+import 'package:lista_tarefas/core/theme.dart';
 
 class AppBottomBar extends StatefulWidget {
   final List<AppBottomBarItem> items;
@@ -26,15 +26,30 @@ class _AppBottomBarState extends State<AppBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          maxItemWidth = constraints.maxWidth / widget.items.length;
-          return Row(
-            children: widget.items,
-          );
-        }
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+          border: Border(
+            top: BorderSide(
+              color: AppThemeColors.extraLight,
+            )
+          )
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              maxItemWidth = constraints.maxWidth / widget.items.length;
+              return Row(
+                children: widget.items,
+              );
+            }
+          ),
+        ),
       ),
     );
   }
@@ -59,7 +74,7 @@ class AppBottomBarItem extends StatelessWidget {
       width: AppBottomBar._of(context).maxItemWidth,
       child: GestureDetector(
         onTap: () {
-          
+          print("Nav button pressed");
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -73,7 +88,7 @@ class AppBottomBarItem extends StatelessWidget {
                 child: FaIcon(
                   icon,
                   size: 20,
-                  color: selectedColor,
+                  color: selectedColor ?? ColorScheme.of(context).onSurface,
                 ),
               ),
             ),
