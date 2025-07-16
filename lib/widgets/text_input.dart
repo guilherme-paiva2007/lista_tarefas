@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
+import 'package:lista_tarefas/core/constants/dimensions.dart';
 
 class AppTextInput extends StatelessWidget {
   final bool autocorrect;
@@ -53,10 +54,10 @@ class AppTextInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final validator = this.validator ?? TextInputValidatorController((_) => null, controller);
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        // color: AppPrimaryColors.lightGrey,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppBorderRadius.big,
       ),
       child: Padding(
         padding: const EdgeInsets.all(0),
@@ -77,51 +78,50 @@ class AppTextInput extends StatelessWidget {
             onChanged?.call(value);
           },
           onTap: () => onTap?.call(),
-          cursorColor: AppPrimaryColors.extraDarkGrey,
           validator: (value) {
             final error = validator._runValidator(value ?? "");
             return error;
           },
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
-            label: label != null ? Text(label!, style: TextStyle(color: AppPrimaryColors.extraDarkGrey),) : null,
+            label: label != null ? Text(label!) : null,
             prefixIcon: prefixIcon != null ? GestureDetector(
               onTap: () => onTapPrefixIcon?.call(),
-              child: FaIcon(prefixIcon, size: 24, color: AppPrimaryColors.darkGrey,),
+              child: FaIcon(prefixIcon, size: 24, color: colorScheme.outline,),
             ) : null,
             suffixIcon: suffixIcon != null ? GestureDetector(
               onTap: () => onTapSuffixIcon?.call(),
-              child: FaIcon(suffixIcon, size: 24, color: AppPrimaryColors.darkGrey,),
+              child: FaIcon(suffixIcon, size: 24, color: colorScheme.outline,),
             ) : null,
             suffixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
             prefixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             filled: true,
-            fillColor: AppPrimaryColors.lightGrey,
+            fillColor: colorScheme.outline,
             hoverColor: Colors.transparent,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: AppBorderRadius.medium,
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: AppBorderRadius.medium,
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: AppBorderRadius.medium,
               // borderSide: BorderSide.none,
-              borderSide: BorderSide(color: AppPrimaryColors.grey),
+              borderSide: BorderSide(color: colorScheme.surfaceContainer),
             ),
               errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: AppSecondaryColors.red),
+              borderRadius: AppBorderRadius.medium,
+              borderSide: BorderSide(color: AppColors.red),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: AppSecondaryColors.red),
+              borderRadius: AppBorderRadius.medium,
+              borderSide: BorderSide(color: AppColors.red),
             ),
             errorStyle: TextStyle(
-              color: AppSecondaryColors.red,
+              color: AppColors.red,
               fontSize: 12,
             ),
             errorMaxLines: 1,

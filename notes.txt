@@ -1,0 +1,7 @@
+extension on Model {} nas áreas de services (para limitar onde ocorrem as operações)
+
+pensar em um método para corrigir dados corrompidos, override()
+
+criar um mixin instanceListener que rebuilda somente baseado nas alterações de uma instancia de modelo
+
+getter nos task_groups pra procurar as tasks onde path pega grupo

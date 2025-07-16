@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
 import 'package:lista_tarefas/widgets/big_button.dart';
 import 'package:lista_tarefas/widgets/date_input.dart';
-import 'package:lista_tarefas/widgets/input.dart';
+import 'package:lista_tarefas/widgets/text_input.dart';
+import 'package:lista_tarefas/widgets/leading_icon.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -47,7 +47,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
         && passwordValidator.valid
         && nameValidator.valid
         && birthDateValidator.valid;
-      print(isValid);
       _formValidNotifier.value = isValid;
     });
   }
@@ -81,7 +80,6 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
     }, passwordController);
 
     birthDateValidator = DateInputValidatorController((date) {
-      print(date);
       if (date == null) return "A data não pode estar vazia.";
       return null;
     }, birthDateController);
@@ -138,22 +136,12 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppPrimaryColors.white,
       appBar: AppBar(
-        backgroundColor: AppPrimaryColors.white,
-        surfaceTintColor: AppPrimaryColors.white,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05),
-              child: FaIcon(FontAwesomeIcons.chevronLeft, size: 24, color: AppPrimaryColors.extraDarkGrey,),
-            ),
-          ),
-        ),
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: colorScheme.surface,
+        leading: const AppBarLeadingIcon(FontAwesomeIcons.chevronLeft),
       ),
       body: SafeArea(
         child: Column(
@@ -174,24 +162,25 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Cadastre-se no", style: GoogleFonts.montserrat(
+                    Text("Cadastre-se no", style: TextStyle(
+                      fontFamily: "Montserrat",
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
                       height: 1.0,
-                      color: AppPrimaryColors.extraDarkGrey
                     ),),
                     Row(
                       children: [
-                        Text("DoIT ", style: GoogleFonts.montserrat(
+                        Text("DoIT ", style: TextStyle(
+                          fontFamily: "Montserrat",
                           fontSize: 40,
                           fontWeight: FontWeight.bold,
-                          color: AppPrimaryColors.blue,
+                          color: AppColors.blue,
                           // height: 1.0,
                         ),),
-                        Text("agora", style: GoogleFonts.montserrat(
+                        Text("agora", style: TextStyle(
+                          fontFamily: "Montserrat",
                           fontSize: 40,
                           fontWeight: FontWeight.bold,
-                          color: AppPrimaryColors.extraDarkGrey,
                           // height: 1.0,
                         ),),
                       ],
@@ -273,11 +262,9 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin, Widg
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.9,
                             child: AppBigButton(
-                              onPressed: () {
-                                print(birthDateValidator.valid);
-                              },
+                              onPressed: () {},
                               text: "Cadastrar-se",
-                              color: isValidForm ? AppPrimaryColors.indigo : AppPrimaryColors.darkGrey,
+                              color: isValidForm ? AppColors.blue : colorScheme.surfaceContainer,
                             ),
                           ),
                         ],

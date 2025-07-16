@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
+import 'package:lista_tarefas/core/constants/dimensions.dart';
 
 class AppDateInput extends StatefulWidget {
   final DateInputController controller;
@@ -35,20 +36,14 @@ class _AppDateInputState extends State<AppDateInput> {
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: AppPrimaryColors.white,
+          // backgroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: AppBorderRadius.big,
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: AppPrimaryColors.blue,
-                  onPrimary: AppPrimaryColors.white,
-                  onSurface: AppPrimaryColors.extraDarkGrey
-                ),
-              ),
+              data: Theme.of(context),
               child: CalendarDatePicker(
                 initialDate: widget.controller.date ?? DateTime.now(),
                 firstDate: DateTime(1900),
@@ -70,14 +65,16 @@ class _AppDateInputState extends State<AppDateInput> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () {
         showDatePickerModal();
       },
       child: Container(
         decoration: BoxDecoration(
-          // color: AppPrimaryColors.lightGrey,
-          borderRadius: BorderRadius.circular(16),
+          // color: AppColors.lightGrey,
+          borderRadius: AppBorderRadius.big,
         ),
         child: Padding(
           padding: const EdgeInsets.all(0),
@@ -87,41 +84,41 @@ class _AppDateInputState extends State<AppDateInput> {
             enabled: false,
             keyboardType: TextInputType.datetime,
             style: TextStyle(
-              color: AppPrimaryColors.extraDarkGrey,
+              color: colorScheme.onSurface,
             ),
             decoration: InputDecoration(
-              label: widget.label != null ? Text(widget.label!, style: TextStyle(color: AppPrimaryColors.extraDarkGrey),) : null,
-              suffixIcon: FaIcon(FontAwesomeIcons.calendar, size: 24, color: AppPrimaryColors.darkGrey,),
+              label: widget.label != null ? Text(widget.label!) : null,
+              suffixIcon: FaIcon(FontAwesomeIcons.calendar, size: 24, color: colorScheme.outline,),
               floatingLabelBehavior: FloatingLabelBehavior.always,
               suffixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
               prefixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               filled: true,
-              fillColor: AppPrimaryColors.lightGrey,
+              fillColor: colorScheme.outline,
               hoverColor: Colors.transparent,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: AppBorderRadius.medium,
                 borderSide: BorderSide.none,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: AppBorderRadius.medium,
                 borderSide: BorderSide.none,
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: AppBorderRadius.medium,
                 // borderSide: BorderSide.none,
-                borderSide: BorderSide(color: AppPrimaryColors.grey),
+                borderSide: BorderSide(color: colorScheme.surfaceContainer),
               ),
                 errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: AppSecondaryColors.red),
+                borderRadius: AppBorderRadius.medium,
+                borderSide: BorderSide(color: AppColors.red),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: AppSecondaryColors.red),
+                borderRadius: AppBorderRadius.medium,
+                borderSide: BorderSide(color: AppColors.red),
               ),
               errorStyle: TextStyle(
-                color: AppSecondaryColors.red,
+                color: AppColors.red,
                 fontSize: 12,
               ),
               errorMaxLines: 1,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -17,8 +16,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Não implementado!!!", style: GoogleFonts.montserrat(
-              color: AppSecondaryColors.red,
+            Text("Não implementado!!!", style: TextStyle(
+              fontFamily: "Montserrat",
+              color: AppColors.red,
               fontSize: 48,
               fontWeight: FontWeight.bold,
             ),),

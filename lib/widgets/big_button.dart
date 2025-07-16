@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
+import 'package:lista_tarefas/core/constants/dimensions.dart';
 
 class AppBigButton extends StatefulWidget {
   final String text;
@@ -27,6 +27,7 @@ class _AppBigButtonState extends State<AppBigButton> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: double.infinity,
       child: AnimatedContainer(
@@ -34,27 +35,29 @@ class _AppBigButtonState extends State<AppBigButton> {
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           color: _isPressed 
-              ? (widget.hoverColor ?? widget.color.withOpacity(0.8))
+              ? (widget.hoverColor ?? Color.lerp(widget.color, colorScheme.surface, 0.4))
               : widget.color,
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: AppBorderRadius.small,
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            splashColor: Color.lerp(widget.color, colorScheme.surface, 0.4),
             onTap: widget.onPressed,
             onTapDown: (_) => setState(() => _isPressed = true),
             onTapUp: (_) => setState(() => _isPressed = false),
             onTapCancel: () => setState(() => _isPressed = false),
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: AppBorderRadius.small,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
               child: Center(
                 child: Text(
                   widget.text,
-                  style: GoogleFonts.montserrat(
-                    color: AppPrimaryColors.white,
+                  style: TextStyle(
+                    color: AppColors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
+                    fontFamily: "Montserrat",
                   ),
                 ),
               ),

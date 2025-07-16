@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
+import 'package:lista_tarefas/core/theme.dart';
+import 'package:lista_tarefas/core/utils/set_system_style.dart';
 import 'package:lista_tarefas/screens/auth/forgot_password.dart';
 import 'package:lista_tarefas/screens/auth/register.dart';
 import 'package:lista_tarefas/screens/main/home.dart';
 import 'package:lista_tarefas/widgets/big_button.dart';
-import 'package:lista_tarefas/widgets/input.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:lista_tarefas/widgets/text_input.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  const Login({ super.key });
 
   @override
   State<Login> createState() => _LoginState();
@@ -43,6 +44,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    setSystemStyle();
 
     RegExp emailRegexp = RegExp(
       r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
@@ -107,10 +110,36 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
     _lastBottomInset = bottomInset;
   }
 
+  final List<({ThemeMode mode, IconData icon})> _modeChangerStates = [
+    (mode: ThemeMode.light, icon: FontAwesomeIcons.solidSun),
+    (mode: ThemeMode.dark, icon: FontAwesomeIcons.solidMoon),
+    (mode: ThemeMode.system, icon: FontAwesomeIcons.robot),
+  ];
+
+  int _currentModeChangerIndex = switch (AppTheme.mode) {
+    ThemeMode .light => 0,
+    ThemeMode.dark => 1,
+    ThemeMode.system => 2,
+  };
+
+  _changeAppMode() {
+    _currentModeChangerIndex = (_currentModeChangerIndex + 1) % _modeChangerStates.length;
+    AppTheme.mode = _modeChangerStates[_currentModeChangerIndex].mode;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppPrimaryColors.white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _changeAppMode();
+        },
+        child: FaIcon(
+          _modeChangerStates[_currentModeChangerIndex].icon
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -133,25 +162,24 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Entre agora", style: GoogleFonts.montserrat(
+                      Text("Entre agora", style: TextStyle(
+                        fontFamily: "Montserrat",
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
                         height: 1.0,
-                        color: AppPrimaryColors.extraDarkGrey
                       ),),
                       Row(
                         children: [
-                          Text("no ", style: GoogleFonts.montserrat(
+                          Text("no ", style: TextStyle(
+                            fontFamily: "Montserrat",
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
-                            color: AppPrimaryColors.extraDarkGrey,
-                            // height: 1.0,
                           ),),
-                          Text("DoIT", style: GoogleFonts.montserrat(
+                          Text("DoIT", style: TextStyle(
+                            fontFamily: "Montserrat",
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
-                            color: AppPrimaryColors.blue,
-                            // height: 1.0,
+                            color: AppColors.blue,
                           ),),
                         ],
                       ),
@@ -200,7 +228,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPassword()));
                           },
-                          child: Text("Esqueceu a senha?"),
+                          child: Text("Esqueceu a senha?",),
                         ),
                       )
                     ],
@@ -226,14 +254,16 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                       builder: (context, isFormValid, child) {
                         return AppBigButton(
                           onPressed: () {
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(
-                              builder: (context) {
-                                return Home();
-                              }
-                            ));
+                            if (isFormValid) {
+                              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                                builder: (context) {
+                                  return Home();
+                                }
+                              ));
+                            }
                           },
                           text: "Entrar",
-                          color: isFormValid ? AppPrimaryColors.blue : AppPrimaryColors.grey,
+                          color: isFormValid ? AppColors.blue : colorScheme.surfaceContainer,
                         );
                       }
                     ),
