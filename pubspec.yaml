@@ -16,6 +16,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   cloud_firestore: ^5.6.11
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

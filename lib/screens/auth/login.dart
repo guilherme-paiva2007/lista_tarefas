@@ -5,7 +5,7 @@ import 'package:lista_tarefas/core/theme.dart';
 import 'package:lista_tarefas/core/utils/set_system_style.dart';
 import 'package:lista_tarefas/screens/auth/forgot_password.dart';
 import 'package:lista_tarefas/screens/auth/register.dart';
-import 'package:lista_tarefas/screens/main/home.dart';
+import 'package:lista_tarefas/screens/main.dart';
 import 'package:lista_tarefas/widgets/big_button.dart';
 import 'package:lista_tarefas/widgets/text_input.dart';
 
@@ -259,7 +259,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                             if (isFormValid) {
                               Navigator.of(context).pushReplacement(MaterialPageRoute(
                                 builder: (context) {
-                                  return Home();
+                                  return MainNavigator();
                                 }
                               ));
                             }
