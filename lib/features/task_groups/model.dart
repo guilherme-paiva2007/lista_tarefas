@@ -4,7 +4,7 @@ part of '../task_groups.dart';
 
 final class TaskGroup with Model {
   @override
-  DocumentSnapshot<Object?> get $snapshot => _snapshot;
+  DocumentSnapshot get $snapshot => _snapshot;
 
   DocumentSnapshot _snapshot;
 
@@ -15,8 +15,15 @@ final class TaskGroup with Model {
   String get name => _name;
   Timestamp get createdAt => _createdAt;
   String? get description => _description;
-  
-  
+
+  Iterable<Task> get tasks {
+    return _taskCollection.where((task) {
+      final parent = task.$snapshot.reference.parent.parent;
+      return parent?.id == $snapshot.id;
+    });
+  }
+
+  static final ModelInstanceCollection<Task> _taskCollection = ModelInstanceCollection<Task>();
 
   TaskGroup({
     required DocumentSnapshot snapshot,

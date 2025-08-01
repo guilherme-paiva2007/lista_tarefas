@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 part 'warning.dart';
 
-final class ModelInstanceCollection<T extends Model> {
+final class ModelInstanceCollection<T extends Model> extends Iterable<T> {
   final Map<DocumentReference, T> _map = {};
 
   ModelInstanceCollection._() {
@@ -11,6 +11,7 @@ final class ModelInstanceCollection<T extends Model> {
   }
 
   factory ModelInstanceCollection() {
+    if (T == Model) throw Exception("Cannot create ModelInstanceCollection for Model type");
     final instance = _instances[T];
     if (instance != null) {
       return instance as ModelInstanceCollection<T>;
@@ -30,7 +31,22 @@ final class ModelInstanceCollection<T extends Model> {
     _map.remove(ref);
   }
 
+  @override
+  Iterator<T> get iterator => ModelInstanceCollectionIterator<T>(this);
+
   static final Map<Type, ModelInstanceCollection> _instances = {};
+}
+
+final class ModelInstanceCollectionIterator<T extends Model> implements Iterator<T> {
+  final Iterator<T> _iterator;
+
+  ModelInstanceCollectionIterator(ModelInstanceCollection<T> collection) : _iterator = collection._map.values.iterator;
+
+  @override
+  T get current => _iterator.current;
+
+  @override
+  bool moveNext() => _iterator.moveNext();
 }
 
 mixin Model {

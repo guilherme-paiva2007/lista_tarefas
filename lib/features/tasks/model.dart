@@ -28,6 +28,7 @@ abstract class Task with Model {
   MaterialColor _color;
   IconData _icon;
   TaskPriority _priority;
+  bool _favorite = false;
 
   String get title => _title;
   String? get description => _description;
@@ -35,6 +36,7 @@ abstract class Task with Model {
   MaterialColor get color => _color;
   IconData get icon => _icon;
   TaskPriority get priority => _priority;
+  bool get favorite => _favorite;
 
   EventTypes get type;
 
@@ -46,8 +48,9 @@ abstract class Task with Model {
     required MaterialColor color,
     required IconData icon,
     required TaskPriority priority,
-  }): _title = title, _description = description,
-    _createdAt = createdAt, _color = color, _icon = icon, _priority = priority,
+    required bool favorite,
+  }): _title = title, _description = description, _createdAt = createdAt,
+    _color = color, _icon = icon, _priority = priority, _favorite = favorite,
     _snapshot = snapshot
   {
     init();
@@ -94,6 +97,7 @@ abstract class Task with Model {
     "color": _colorsAssociation.fromAssociated(_color),
     "icon": _iconsAssociation.fromAssociated(_icon),
     "priority": _priorityAssociation.fromAssociated(_priority),
+    "favorite": _favorite,
     "type": type.title,
   };
 
@@ -104,6 +108,7 @@ abstract class Task with Model {
     "color": _colorsAssociation,
     "icon": _iconsAssociation,
     "priority": _priorityAssociation,
+    "favorite": MapVerifierSimpleTypes.boolean,
     "type": MapVerifierSimpleTypes.string,
   });
 
@@ -221,6 +226,7 @@ final class EventTask extends Task {
     required super.color,
     required super.icon,
     required super.priority,
+    required super.favorite,
     required Timestamp startDate,
     required Timestamp endDate,
     super.description,
@@ -253,6 +259,7 @@ final class EventTask extends Task {
         icon: map['icon'],
         priority: map['priority'],
         startDate: map['startDate'],
+        favorite: map['favorite'],
         endDate: map['endDate']
       )
     );
@@ -306,6 +313,7 @@ final class ToDoListTask extends Task {
     required super.color,
     required super.icon,
     required super.priority,
+    required super.favorite,
     required List<ToDoListItem> items,
     super.description,
   }): _items = items;
@@ -323,6 +331,7 @@ final class ToDoListTask extends Task {
         color: map['color'],
         icon: map['icon'],
         priority: map['priority'],
+        favorite: map['favorite'],
         items: map['items'],
       )
     );
@@ -404,6 +413,7 @@ final class HabitTask extends Task {
     required super.createdAt,
     required super.color,
     required super.icon,
+    required super.favorite,
     required super.priority,
     required List<HabitCompletionItem> completions,
     required int frequency,
@@ -435,6 +445,7 @@ final class HabitTask extends Task {
         icon: map['icon'],
         priority: map['priority'],
         completions: map['completions'],
+        favorite: map['favorite'],
         frequency: map['frequency'],
       )
     );
@@ -510,6 +521,7 @@ final class RecurringTask extends Task {
     required super.createdAt,
     required super.color,
     required super.icon,
+    required super.favorite,
     required super.priority,
     required int interval,
     required List<RecurringCompletionItem> completions,
@@ -540,6 +552,7 @@ final class RecurringTask extends Task {
         createdAt: map['createdAt'],
         color: map['color'],
         icon: map['icon'],
+        favorite: map['favorite'],
         priority: map['priority'],
         interval: map['interval'],
         completions: map['completions'],
@@ -608,6 +621,7 @@ final class GoalTask extends Task {
     required super.createdAt,
     required super.color,
     required super.icon,
+    required super.favorite,
     required super.priority,
     required double target,
     required List<GoalInsertionItem> insertions,
@@ -639,6 +653,7 @@ final class GoalTask extends Task {
         createdAt: map['createdAt'],
         color: map['color'],
         icon: map['icon'],
+        favorite: map['favorite'],
         priority: map['priority'],
         target: map['target'],
         insertions: map['insertions'],
@@ -739,6 +754,7 @@ final class ReminderTask extends Task {
     required super.createdAt,
     required super.color,
     required super.icon,
+    required super.favorite,
     required super.priority,
     super.description,
     required Timestamp date,
@@ -757,6 +773,7 @@ final class ReminderTask extends Task {
         createdAt: map['createdAt'],
         color: map['color'],
         icon: map['icon'],
+        favorite: map['favorite'],
         priority: map['priority'],
         date: map['date'],
         done: map['done'],

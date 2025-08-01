@@ -8,7 +8,7 @@ part of '../projects.dart';
 //   DocumentSnapshot _snapshot;
 
 //   @override
-//   DocumentSnapshot<Object?> get $snapshot => _snapshot;
+//   DocumentSnapshot get $snapshot => _snapshot;
 
 //   String _name;
 //   Timestamp _createdAt;

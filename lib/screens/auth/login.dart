@@ -213,6 +213,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                         focusNode: passwordFocusNode,
                         label: "Senha",
                         suffixIcon: passwordSecret.icon,
+                        suffixIconPadding: passwordSecret.obscure ? 12 : 14,
                         validator: passwordValidator,
                         autocorrect: false,
                         enableSuggestions: false,

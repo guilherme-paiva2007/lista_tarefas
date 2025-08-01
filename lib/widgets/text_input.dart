@@ -24,6 +24,8 @@ class AppTextInput extends StatelessWidget {
   final String? label;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
+  final double prefixIconPadding;
+  final double suffixIconPadding;
 
   final TextInputValidatorController? validator;
   
@@ -48,6 +50,8 @@ class AppTextInput extends StatelessWidget {
     this.suffixIcon,
     this.onTapPrefixIcon,
     this.onTapSuffixIcon,
+    this.prefixIconPadding = 0,
+    this.suffixIconPadding = 0,
     this.validator,
   });
 
@@ -87,11 +91,14 @@ class AppTextInput extends StatelessWidget {
             label: label != null ? Text(label!) : null,
             prefixIcon: prefixIcon != null ? GestureDetector(
               onTap: () => onTapPrefixIcon?.call(),
-              child: FaIcon(prefixIcon, size: 24, color: colorScheme.outline,),
+              child: FaIcon(prefixIcon, size: 24, color: colorScheme.onSurface,),
             ) : null,
             suffixIcon: suffixIcon != null ? GestureDetector(
               onTap: () => onTapSuffixIcon?.call(),
-              child: FaIcon(suffixIcon, size: 24, color: colorScheme.outline,),
+              child: Padding(
+                padding: EdgeInsets.only(right: suffixIconPadding),
+                child: FaIcon(suffixIcon, size: 24, color: colorScheme.onSurface,),
+              ),
             ) : null,
             suffixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
             prefixIconConstraints: const BoxConstraints(maxHeight: 24, minWidth: 40),
