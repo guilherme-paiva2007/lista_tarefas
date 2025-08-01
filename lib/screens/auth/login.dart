@@ -125,6 +125,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
   _changeAppMode() {
     _currentModeChangerIndex = (_currentModeChangerIndex + 1) % _modeChangerStates.length;
     AppTheme.mode = _modeChangerStates[_currentModeChangerIndex].mode;
+    AppTheme.saveMode();
   }
 
   @override

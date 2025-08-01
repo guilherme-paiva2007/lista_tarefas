@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
+import 'package:lista_tarefas/core/constants/preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:lista_tarefas/core/themes/dark.dart';
 // import 'package:lista_tarefas/core/themes/light.dart';
 
@@ -36,6 +38,11 @@ abstract final class AppTheme {
     notifier.value = v;
   }
   static ThemeMode get mode => _current;
+
+  static Future<void> saveMode([ThemeMode? mode]) async {
+    if (mode != null) AppTheme.mode = mode;
+    (await SharedPreferences.getInstance()).setString(AppPreferences.localTheme, AppTheme.mode.name);
+  }
 
   static ThemeData get theme => switch (_current) {
     ThemeMode.light => light,

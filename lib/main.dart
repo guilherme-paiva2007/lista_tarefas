@@ -4,9 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:lista_tarefas/core/constants/preferences.dart';
 import 'package:lista_tarefas/core/theme.dart';
 import 'package:lista_tarefas/core/utils/set_system_style.dart';
-import 'package:lista_tarefas/screens/auth/login.dart';
+// import 'package:lista_tarefas/screens/auth/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:lista_tarefas/firebase_options.dart';
+import 'package:lista_tarefas/screens/auth/login2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -34,9 +35,7 @@ void main() async {
       persistenceEnabled: true,
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
     );
-  } catch(err) {
-    //
-  }
+  } finally {}
 
   runApp(const MainApp());
 }
@@ -49,6 +48,14 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> with ThemeListener {
+  // @override
+  // initState() {
+  //   super.initState();
+  //   SystemChrome.setPreferredOrientations([
+  //     DeviceOrientation.portraitUp,
+  //   ]);
+  // }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((context) {
