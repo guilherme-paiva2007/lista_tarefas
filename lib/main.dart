@@ -4,10 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:lista_tarefas/core/constants/preferences.dart';
 import 'package:lista_tarefas/core/theme.dart';
 import 'package:lista_tarefas/core/utils/set_system_style.dart';
-// import 'package:lista_tarefas/screens/auth/login.dart';
+import 'package:lista_tarefas/screens/auth/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:lista_tarefas/firebase_options.dart';
-import 'package:lista_tarefas/screens/auth/login2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {

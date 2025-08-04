@@ -11,10 +11,12 @@ final class TaskGroup with Model {
   String _name;
   Timestamp _createdAt;
   String? _description;
+  MaterialColor _color;
 
   String get name => _name;
   Timestamp get createdAt => _createdAt;
   String? get description => _description;
+  MaterialColor get color => _color;
 
   Iterable<Task> get tasks {
     return _taskCollection.where((task) {
@@ -29,11 +31,13 @@ final class TaskGroup with Model {
     required DocumentSnapshot snapshot,
     required String name,
     required Timestamp createdAt,
+    required MaterialColor color,
     String? description,
   }): _snapshot = snapshot,
     _name = name,
     _createdAt = createdAt,
-    _description = description
+    _description = description,
+    _color = color
   {
     init();
   }
@@ -59,6 +63,7 @@ final class TaskGroup with Model {
         name: map['name'] as String,
         createdAt: map['createdAt'] as Timestamp,
         description: map['description'] as String?,
+        color: map['color'] as MaterialColor,
       )
     );
   }
@@ -67,6 +72,7 @@ final class TaskGroup with Model {
     'name': MapVerifierSimpleTypes.string,
     'createdAt': MapVerifierSimpleTypes.timestamp,
     'description': MapVerifierSimpleTypes.stringNullable,
+    'color': MapVerifierStringAssociated(Task.colorsMap),
   });
 
   @override
@@ -75,6 +81,7 @@ final class TaskGroup with Model {
       "name": _name,
       "createdAt": _createdAt,
       "description": _description,
+      "color": _color,
     };
   }
 }

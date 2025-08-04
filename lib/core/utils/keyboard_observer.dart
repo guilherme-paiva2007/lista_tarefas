@@ -7,7 +7,7 @@ mixin KeyboardObserver<T extends StatefulWidget> on State<T>, WidgetsBindingObse
   void onKeyboardHeightChanged(double height) {}
 
   double _lastBottomInset = 0;
-  KeyboardState _keyboardState = KeyboardState.open;
+  KeyboardState _keyboardState = KeyboardState.closed;
 
   KeyboardState get keyboardState => _keyboardState;
 

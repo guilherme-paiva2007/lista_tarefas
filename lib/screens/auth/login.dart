@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
-import 'package:lista_tarefas/core/theme.dart';
-import 'package:lista_tarefas/core/utils/set_system_style.dart';
+import 'package:lista_tarefas/core/constants/rules.dart';
+import 'package:lista_tarefas/core/utils/extensions.dart';
+import 'package:lista_tarefas/core/utils/keyboard_observer.dart';
 import 'package:lista_tarefas/screens/auth/forgot_password.dart';
-import 'package:lista_tarefas/screens/auth/register.dart';
-import 'package:lista_tarefas/screens/main.dart';
 import 'package:lista_tarefas/widgets/big_button.dart';
 import 'package:lista_tarefas/widgets/text_input.dart';
 
 class Login extends StatefulWidget {
-  const Login({ super.key });
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBindingObserver, KeyboardObserver {
   final TextEditingController emailController = TextEditingController(text: "");
   final FocusNode emailFocusNode = FocusNode();
   late final TextInputValidatorController emailValidator;
@@ -25,275 +25,225 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
   late final TextInputValidatorController passwordValidator;
   final SecretInputController passwordSecret = SecretInputController();
 
-  late AnimationController _animationController;
-  late Animation<double> _flexAnimation;
+  late AnimationController keyboardSizeAnimationController;
+  late Animation<double> keyboardSizeScaleAnimation;
 
-  double _lastBottomInset = 0;
-  _KeyboardState _keyboardState = _KeyboardState.closed;
-  
-  final ValueNotifier<bool> _formValidNotifier = ValueNotifier<bool>(false);
+  late double sizePart;
+  late double crossAxisSize;
 
-  void _checkFormValidity() {
+  late _ContainerSizeValues size1;
+  late _ContainerSizeValues size2;
+  late _ContainerSizeValues size3;
+
+  final ValueNotifier<bool> validFormNotifier = ValueNotifier(false);
+
+  void checkFormValidity() {
     WidgetsBinding.instance.addPostFrameCallback((context) {
-      final isValid = emailValidator.valid && passwordValidator.valid;
-      _formValidNotifier.value = isValid;
+      validFormNotifier.value = emailValidator.valid && passwordValidator.valid;
     });
+  }
+
+  void _updateSizes(Orientation orientation, BoxConstraints constraints) {
+    sizePart = (constraints.maxHeight) / (26 + keyboardSizeScaleAnimation.value);
+    crossAxisSize = constraints.maxWidth - kFloatingActionButtonMargin * 2;
+
+    size1 = (height: sizePart * 8, width: crossAxisSize);
+    size2 = (height: sizePart * 16, width: crossAxisSize);
+    size3 = (height: sizePart * 2, width: crossAxisSize);
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    emailValidator = TextInputValidatorController((v) => AppRules.email.firstError(v ?? ""), emailController);
+    passwordValidator = TextInputValidatorController((v) => AppRules.password.firstError(v ?? ""), passwordController);
 
-    setSystemStyle();
-
-    RegExp emailRegexp = RegExp(
-      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
-    );
-    emailValidator = TextInputValidatorController((value) {
-      if ((value ?? "").isEmpty) return "E-mail não pode estar vazio.";
-      if (!emailRegexp.hasMatch(value ?? "")) return "Estrutura de e-mail inválida.";
-      return null;
-    }, emailController);
-
-    passwordValidator = TextInputValidatorController((value) {
-      if ((value ?? "").isEmpty) return "A senha não pode estar vazia.";
-      return null;
-    }, passwordController);
-
-    _animationController = AnimationController(
-      duration: Duration(milliseconds: 300),
+    keyboardSizeAnimationController = AnimationController(
+      duration: kThemeAnimationDuration,
       vsync: this,
     );
 
-    _flexAnimation = Tween<double>(
-      begin: 16.0,
-      end: 0.0,
+    keyboardSizeScaleAnimation = Tween<double>(
+      begin: 16,
+      end: 2,
     ).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: keyboardSizeAnimationController,
       curve: Curves.easeInOut,
     ));
 
-    emailController.addListener(_checkFormValidity);
-    passwordController.addListener(_checkFormValidity);
+    keyboardSizeAnimationController.addStatusListener((status) {
+      if (status.isCompleted || status.isDismissed) {
+        setState(() {});
+      }
+    });
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
+    emailController.addListener(checkFormValidity);
+    passwordController.addListener(checkFormValidity);
   }
 
   @override
   void dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    
     WidgetsBinding.instance.removeObserver(this);
-    _animationController.dispose();
+    keyboardSizeAnimationController.dispose();
     super.dispose();
-    emailController.dispose();
-    emailFocusNode.dispose();
-    passwordController.dispose();
-    passwordFocusNode.dispose();
   }
 
   @override
-  void didChangeMetrics() {
-    final bottomInset = View.of(context).viewInsets.bottom;
+  void onKeyboardOpen() => keyboardSizeAnimationController.forward();
 
-    if (bottomInset != _lastBottomInset) {
-      if (bottomInset > _lastBottomInset) {
-        if (_keyboardState != _KeyboardState.open) {
-          _animationController.forward();
-          _keyboardState = _KeyboardState.open;
-        }
-      } else {
-        if (_keyboardState != _KeyboardState.closed) {
-          _animationController.reverse();
-          _keyboardState = _KeyboardState.closed;
-        }
-      }
-    }
-
-    _lastBottomInset = bottomInset;
-  }
-
-  final List<({ThemeMode mode, IconData icon})> _modeChangerStates = [
-    (mode: ThemeMode.light, icon: FontAwesomeIcons.solidSun),
-    (mode: ThemeMode.dark, icon: FontAwesomeIcons.solidMoon),
-    (mode: ThemeMode.system, icon: FontAwesomeIcons.robot),
-  ];
-
-  int _currentModeChangerIndex = switch (AppTheme.mode) {
-    ThemeMode .light => 0,
-    ThemeMode.dark => 1,
-    ThemeMode.system => 2,
-  };
-
-  _changeAppMode() {
-    _currentModeChangerIndex = (_currentModeChangerIndex + 1) % _modeChangerStates.length;
-    AppTheme.mode = _modeChangerStates[_currentModeChangerIndex].mode;
-    AppTheme.saveMode();
-  }
+  @override
+  void onKeyboardClose() => keyboardSizeAnimationController.reverse();
 
   @override
   Widget build(BuildContext context) {
-    setSystemStyle();
-
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _changeAppMode();
-        },
-        child: FaIcon(
-          _modeChangerStates[_currentModeChangerIndex].icon
-        ),
-      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            AnimatedBuilder(
-              animation: _flexAnimation,
-              builder: (context, _) {
-                return Expanded(
-                  flex: _flexAnimation.value.round(),
-                  child: Center(
-                    
-                  ),
-                );
-              }
-            ),
-            Expanded(
-              flex: 8,
-              child: Center(
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Entre agora", style: TextStyle(
-                        fontFamily: "Montserrat",
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        height: 1.0,
-                      ),),
-                      Row(
-                        children: [
-                          Text("no ", style: TextStyle(
-                            fontFamily: "Montserrat",
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                          ),),
-                          Text("DoIT", style: TextStyle(
-                            fontFamily: "Montserrat",
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.blue,
-                          ),),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 12,
-              child: Center(
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 20,),
-                      AppTextInput(
-                        controller: emailController,
-                        focusNode: emailFocusNode,
-                        label: "Email",
-                        suffixIcon: FontAwesomeIcons.envelope,
-                        validator: emailValidator,
-                        maxLines: 1,
-                      ),
-                      SizedBox(height: 20,),
-                      AppTextInput(
-                        controller: passwordController,
-                        focusNode: passwordFocusNode,
-                        label: "Senha",
-                        suffixIcon: passwordSecret.icon,
-                        suffixIconPadding: passwordSecret.obscure ? 12 : 14,
-                        validator: passwordValidator,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        obscureText: passwordSecret.obscure,
-                        onTapSuffixIcon: () {
-                          setState(() {
-                            passwordSecret.toggle();
-                          });
-                        },
-                        maxLines: 1,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16, top: 4),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPassword()));
-                          },
-                          child: Text("Esqueceu a senha?",),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 12,
-              child: Column(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final orientation = MediaQuery.of(context).orientation;
+
+            _updateSizes(orientation, constraints);
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kFloatingActionButtonMargin),
+              child: Flex(
+                direction: orientation.asAxis,
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AnimatedBuilder(
-                    animation: _flexAnimation,
+                    animation: keyboardSizeAnimationController,
                     builder: (context, _) {
-                      return SizedBox(height: _flexAnimation.value * 5,);
+                      final _ContainerSizeValues size = orientation == Orientation.portrait
+                        ? (height: sizePart * keyboardSizeScaleAnimation.value, width: crossAxisSize)
+                        : (height: crossAxisSize, width: sizePart * keyboardSizeScaleAnimation.value);
+                      _updateSizes(orientation, constraints);
+                      return SizedBox(
+                        height: size.height,
+                        width: size.width,
+                      );
                     }
                   ),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    child: ValueListenableBuilder<bool>(
-                      valueListenable: _formValidNotifier,
-                      builder: (context, isFormValid, child) {
-                        return AppBigButton(
-                          onPressed: () {
-                            if (isFormValid) {
-                              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                                builder: (context) {
-                                  return MainNavigator();
-                                }
-                              ));
-                            }
-                          },
-                          text: "Entrar",
-                          color: isFormValid ? AppColors.blue : colorScheme.surfaceContainer,
-                        );
-                      }
+                    height: size1.height,
+                    width: size1.width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Entre agora", style: TextStyle(
+                          fontFamily: "Montserrat",
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          height: 1.0,
+                        ),),
+                        Row(
+                          children: [
+                            Text("no ", style: TextStyle(
+                              fontFamily: "Montserrat",
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                            ),),
+                            Text("DoIT", style: TextStyle(
+                              fontFamily: "Montserrat",
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.blue,
+                            ),),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                          return Register();
-                        }));
-                      },
-                      child: Text("Não tem uma conta?")
+                  SizedBox(
+                    height: size2.height,
+                    width: size2.width,
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20,),
+                          AppTextInput(
+                            controller: emailController,
+                            focusNode: emailFocusNode,
+                            label: "E-mail",
+                            suffixIcon: FontAwesomeIcons.envelope,
+                            validator: emailValidator,
+                            maxLines: 1,
+                          ),
+                          SizedBox(height: 20,),
+                          AppTextInput(
+                            controller: passwordController,
+                            focusNode: passwordFocusNode,
+                            label: "Senha",
+                            suffixIcon: passwordSecret.icon,
+                            suffixIconPadding: passwordSecret.obscure ? 12 : 14,
+                            validator: passwordValidator,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            obscureText: passwordSecret.obscure,
+                            onTapSuffixIcon: () {
+                              setState(() {
+                                passwordSecret.toggle();
+                              });
+                            },
+                            maxLines: 1,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, top: 4),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPassword()));
+                              },
+                              child: Text("Esqueceu a senha?",),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 12,
+                          ),
+                          Column(
+                            children: [
+                              ValueListenableBuilder(
+                                valueListenable: validFormNotifier,
+                                builder: (context, isValid, _) {
+                                  return AppBigButton(
+                                    onPressed: () {},
+                                    text: "Entrar",
+                                    color: isValid ? AppColors.blue : ColorScheme.of(context).surfaceContainer
+                                  );
+                                }
+                              )
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                  )
+                  ),
+                  SizedBox(
+                    height: size3.height,
+                    width: size3.width,
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
+            );
+          }
+        )
+      )
     );
   }
 }
 
-enum _KeyboardState {
-  open,
-  closed,
-}
+typedef _ContainerSizeValues = ({double height, double width});

@@ -55,4 +55,6 @@ final class AppRule<T> {
     }
     return errors;
   }
+
+  String? Function(T? value) toValidator(T Function() defaultValue) => (T? v) => firstError(v ?? defaultValue());
 }
