@@ -5,15 +5,17 @@ part of '../tasks.dart';
 typedef TaskResult<T extends Task> = Result<T, List<StructureWarning>>;
 
 enum TaskPriority with TitledEnum {
-  low,
-  medium,
-  high,
-  urgent;
+  low(FontAwesomeIcons.caretDown),
+  medium(FontAwesomeIcons.circle),
+  high(FontAwesomeIcons.caretUp),
+  urgent(FontAwesomeIcons.exclamation);
 
   @override
   String get title => name;
 
-  const TaskPriority();
+  final IconData icon;
+
+  const TaskPriority(this.icon);
 }
 
 abstract class Task with Model {
