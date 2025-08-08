@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-mixin KeyboardObserver<T extends StatefulWidget> on State<T>, WidgetsBindingObserver {
+mixin ScreenObserver<T extends StatefulWidget> on State<T>, WidgetsBindingObserver {
   void onKeyboardOpen() {}
   void onKeyboardClose() {}
 

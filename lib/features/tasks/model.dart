@@ -484,15 +484,18 @@ final class HabitTask extends Task {
 typedef RecurringCompletionItem = ({ Timestamp date, String? note });
 
 final class RecurringTask extends Task {
-  int _interval;
+  DateDuration _interval;
   List<RecurringCompletionItem> _completions;
   Timestamp _nextOccurrence;
 
-  int get interval => _interval;
+  DateDuration get interval => _interval;
   List<RecurringCompletionItem> get completions => List.unmodifiable(_completions);
   Timestamp get nextOccurrence => _nextOccurrence;
 
-  Duration get intervalDuration => Duration(days: _interval);
+  Timestamp automaticNextOccurence() {
+    final last = _completions.lastOrNull?.date.toDate() ?? _createdAt.toDate();
+    return Timestamp.fromDate(_interval.copy(last));
+  }
 
   bool get isDue => _nextOccurrence.toDate().isBefore(DateTime.now());
   
@@ -525,7 +528,7 @@ final class RecurringTask extends Task {
     required super.icon,
     required super.favorite,
     required super.priority,
-    required int interval,
+    required DateDuration interval,
     required List<RecurringCompletionItem> completions,
     required Timestamp nextOccurrence,
     super.description,
@@ -534,7 +537,25 @@ final class RecurringTask extends Task {
   @override
   void validate() {
     super.validate();
-    if (interval <= 0) {
+    if (interval case DateDurationRelative(
+      duration: Duration(
+        inDays: 0,
+        inHours: 0,
+        inMinutes: 0,
+        inSeconds: 0,
+        inMilliseconds: 0,
+        inMicroseconds: 0
+      )
+    ) || DateDurationStatic(
+      year: 0,
+      month: 0,
+      day: 0,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+      microsecond: 0,
+    )) {
       warn(const Warning(
         "Recurring task interval must be greater than 0",
         WarningCodes.invalidRecurringInterval
@@ -564,7 +585,7 @@ final class RecurringTask extends Task {
   }
 
   static final _mapVerifier = Task._defaultMapVerifier.extendFrom({
-    "interval": MapVerifierNumericTypes.integer,
+    "interval": DateDuration.mapVerifierType,
     "completions": MapVerifierSubList(MapVerifierSubMap<RecurringCompletionItem>(
       (map) => (
         date: map["date"],
@@ -595,6 +616,13 @@ final class RecurringTask extends Task {
 
 typedef GoalInsertionItem = ({ Timestamp date, double value, String? note });
 
+enum GoalTaskStatus {
+  completed,
+  overdue,
+  inProgress,
+  notStarted;
+}
+
 final class GoalTask extends Task {
   double _target;
   String _unit;
@@ -616,6 +644,15 @@ final class GoalTask extends Task {
   bool get isOverdue => _date != null && 
     _date!.toDate().isBefore(DateTime.now()) && 
     !isCompleted;
+
+  GoalTaskStatus get status {
+    if (isCompleted) return GoalTaskStatus.completed;
+    if (isOverdue) return GoalTaskStatus.overdue;
+    if (_date != null && _date!.toDate().isAfter(DateTime.now())) {
+      return GoalTaskStatus.inProgress;
+    }
+    return GoalTaskStatus.notStarted;
+  }
 
   GoalTask._({
     required super.snapshot,

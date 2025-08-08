@@ -4,8 +4,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lista_tarefas/core/constants/colors.dart';
 import 'package:lista_tarefas/core/constants/rules.dart';
 import 'package:lista_tarefas/core/utils/extensions.dart';
-import 'package:lista_tarefas/core/utils/keyboard_observer.dart';
+import 'package:lista_tarefas/core/utils/screen_observer.dart';
 import 'package:lista_tarefas/screens/auth/forgot_password.dart';
+import 'package:lista_tarefas/screens/auth/register2.dart';
 import 'package:lista_tarefas/widgets/big_button.dart';
 import 'package:lista_tarefas/widgets/text_input.dart';
 
@@ -16,7 +17,7 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBindingObserver, KeyboardObserver {
+class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBindingObserver, ScreenObserver {
   final TextEditingController emailController = TextEditingController(text: "");
   final FocusNode emailFocusNode = FocusNode();
   late final TextInputValidatorController emailValidator;
@@ -44,10 +45,10 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
   }
 
   void _updateSizes(Orientation orientation, BoxConstraints constraints) {
-    sizePart = (constraints.maxHeight) / (26 + keyboardSizeScaleAnimation.value);
+    sizePart = (constraints.maxHeight) / (24 + keyboardSizeScaleAnimation.value);
     crossAxisSize = constraints.maxWidth - kFloatingActionButtonMargin * 2;
 
-    size1 = (height: sizePart * 8, width: crossAxisSize);
+    size1 = (height: sizePart * 6, width: crossAxisSize);
     size2 = (height: sizePart * 16, width: crossAxisSize);
     size3 = (height: sizePart * 2, width: crossAxisSize);
   }
@@ -68,10 +69,11 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
     keyboardSizeScaleAnimation = Tween<double>(
       begin: 16,
       end: 2,
-    ).animate(CurvedAnimation(
-      parent: keyboardSizeAnimationController,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(keyboardSizeAnimationController);
+    // .animate(CurvedAnimation(
+    //   parent: keyboardSizeAnimationController,
+    //   curve: Curves.easeInOut,
+    // ));
 
     keyboardSizeAnimationController.addStatusListener((status) {
       if (status.isCompleted || status.isDismissed) {
@@ -144,27 +146,27 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Entre agora", style: TextStyle(
-                          fontFamily: "Montserrat",
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          height: 1.0,
-                        ),),
-                        Row(
-                          children: [
-                            Text("no ", style: TextStyle(
+                        RichText(
+                          text: TextSpan(
+                            text: "Entre agora \nno ",
+                            style: TextStyle(
                               fontFamily: "Montserrat",
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
-                            ),),
-                            Text("DoIT", style: TextStyle(
-                              fontFamily: "Montserrat",
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.blue,
-                            ),),
-                          ],
-                        ),
+                            ),
+                            children: [
+                              TextSpan(
+                                text: "DoIT",
+                                style: TextStyle(
+                                  fontFamily: "Montserrat",
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.blue,
+                                ),
+                              )
+                            ]
+                          )
+                        )
                       ],
                     ),
                   ),
@@ -215,6 +217,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                             height: 12,
                           ),
                           Column(
+                            spacing: 4,
                             children: [
                               ValueListenableBuilder(
                                 valueListenable: validFormNotifier,
@@ -225,6 +228,14 @@ class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBin
                                     color: isValid ? AppColors.blue : ColorScheme.of(context).surfaceContainer
                                   );
                                 }
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                                    return Register();
+                                  }));
+                                },
+                                child: Text("Não tem uma conta?"),
                               )
                             ],
                           )

@@ -1,14 +1,20 @@
+import 'package:flutter/widgets.dart';
+
 final class LayoutSizeDivider {
+  late final ValueNotifier<double> sumNotifier;
+
   final List<double> _areas;
   late double _sum;
 
+  double? _lastSize;
   late double _size;
   late double _partSize;
 
   set size(double v) {
-    if (_size == v) return;
+    if (_lastSize == v) return;
     _size = v;
     _partSize = _size / _sum;
+    _lastSize = _size;
   }
   double get size => _size;
 
@@ -17,6 +23,7 @@ final class LayoutSizeDivider {
       if (area < 0) throw RangeError("Area size must be non-negative");
     }
     _sum = _areas.fold<double>(0, _sumFold);
+    sumNotifier = ValueNotifier(_sum);
   }
 
   operator []=(int index, double value) {
@@ -24,16 +31,20 @@ final class LayoutSizeDivider {
     final last = _areas[index];
     _areas[index] = value;
     _sum += (value - last);
+    _partSize = _size / _sum;
+    sumNotifier.value = _sum;
   }
 
   operator [](int index) => DividerPart._(index, this);
+
+  double getPartArea(int index) => _areas[index];
 }
 
 final class DividerPart {
   final int index;
   final LayoutSizeDivider layoutSizeDivider;
 
-  DividerPart._(this.index, this.layoutSizeDivider);
+  const DividerPart._(this.index, this.layoutSizeDivider);
 
   double get _areaSize {
     try {

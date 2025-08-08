@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lista_tarefas/core/constants/rules.dart';
 import 'package:lista_tarefas/core/utils/extensions.dart';
-import 'package:lista_tarefas/core/utils/keyboard_observer.dart';
+import 'package:lista_tarefas/core/utils/screen_observer.dart';
 import 'package:lista_tarefas/widgets/text_input.dart';
 
 /// Responde a mudança de tamanho do teclado com animação
@@ -16,7 +16,7 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBindingObserver, KeyboardObserver {
+class _LoginState extends State<Login> with TickerProviderStateMixin, WidgetsBindingObserver, ScreenObserver {
   final TextEditingController emailController = TextEditingController(text: "");
   final FocusNode emailFocusNode = FocusNode();
   late final TextInputValidatorController emailValidator;
